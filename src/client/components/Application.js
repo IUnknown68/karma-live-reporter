@@ -8,7 +8,7 @@ import {
   BROWSER_REGISTER, BROWSER_START, CURRENT_STATE
 } from 'app-constants';
 
-import Browser from 'components/Browser';
+import BrowserList from 'components/BrowserList';
 
 //==============================================================================
 export default class Application extends Component {
@@ -18,17 +18,6 @@ export default class Application extends Component {
     },
     [DISCONNECT]: function() {
       this.setState({connected: false});
-    },
-    [BROWSER_REGISTER]: function(browser) {
-      this.addBrowser(browser);
-    },
-    [CURRENT_STATE]: function(state) {
-      console.log(state);
-      let browsers = new Map();
-      state.browsers.forEach(browser => {
-        browsers.set(browser.id, browser);
-      });
-      this.setState({browsers});
     }
   };
 
@@ -36,27 +25,9 @@ export default class Application extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      connected: false,
-      browsers: new Map()
+      connected: false
     };
     attachListener(this);
-  }
-
-  //----------------------------------------------------------------------------
-  addBrowser(browser) {
-    if (!this.state.browsers.has(browser.id)) {
-      this.state.browsers.set(browser.id, browser);
-      this.setState({browser: this.state.browsers});
-    }
-  }
-
-  //----------------------------------------------------------------------------
-  renderBrowsers() {
-    const result = [];
-    this.state.browsers.forEach(browser => {
-      result.push(<Browser key={browser.id} browser={browser} />);
-    });
-    return result;
   }
 
   //----------------------------------------------------------------------------
@@ -71,7 +42,7 @@ export default class Application extends Component {
     return (
       <div id="app">
         <div className={connectionStatusClasses}>{connectionMsg}</div>
-        {this.renderBrowsers()}
+        <BrowserList />
       </div>
     );
   }

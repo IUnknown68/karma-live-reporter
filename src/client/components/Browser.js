@@ -20,30 +20,34 @@ import {
 export default class Browser extends Component {
   static listener = {
     [BROWSER_START]: function(browser) {
-      if (browser.id === this.state.id) {
-        //console.log(browser);
-        this.setState(browser);
+      if (browser.id === this.props.browser.id) {
+        this.setState({state: browser.state, lastResult: browser.lastResult});
       }
     },
     [BROWSER_COMPLETE]: function(browser) {
-      if (browser.id === this.state.id) {
-        console.log(BROWSER_COMPLETE, browser.state);
-        this.setState(browser);
+      if (browser.id === this.props.browser.id) {
+        this.setState({state: browser.state, lastResult: browser.lastResult});
       }
     },
     [SPEC_SUCCESS]: function(browser, result) {
-      if (browser.id === this.state.id) {
-        //console.log(browser, result);
-        this.setState(browser);
+      if (browser.id === this.props.browser.id) {
+      }
+    },
+    [SPEC_SKIPPED]: function(browser, result) {
+      if (browser.id === this.props.browser.id) {
+      }
+    },
+    [SPEC_FAILURE]: function(browser, result) {
+      if (browser.id === this.props.browser.id) {
       }
     },
     [BROWSER_LOG]: function(browser, log, type) {
-      if (browser.id === this.state.id) {
+      if (browser.id === this.props.browser.id) {
         //console.log(BROWSER_LOG, browser, log, type);
       }
     },
     [BROWSER_ERROR]: function(browser, error) {
-      if (browser.id === this.state.id) {
+      if (browser.id === this.props.browser.id) {
         //console.log(BROWSER_ERROR, browser, error);
       }
     }
@@ -52,7 +56,10 @@ export default class Browser extends Component {
   //----------------------------------------------------------------------------
   constructor(props) {
     super(props);
-    this.state = props.browser;
+    this.state = {
+      state: props.browser.state,
+      lastResult: props.browser.lastResult
+    };
     attachListener(this);
   }
 
@@ -87,14 +94,34 @@ export default class Browser extends Component {
   }
 
   //----------------------------------------------------------------------------
+  renderLastResult() {
+    return (this.state.lastResult)
+      ? (
+        <table className="table lastResult"><tbody>
+          <tr>
+            <td>Success: </td><td>{this.state.lastResult.success}</td>
+            <td>Failed: </td><td>{this.state.lastResult.failed}</td>
+            <td>Skipped: </td><td>{this.state.lastResult.skipped}</td>
+            <td>Total: </td><td>{this.state.lastResult.total}</td>
+            <td>Total time: </td><td>{this.state.lastResult.totalTime}</td>
+          </tr>
+        </tbody></table>
+      )
+      : false;
+  }
+
+  //----------------------------------------------------------------------------
   render() {
     return (
       <div className="browser">
-        <h3>{this.state.name}</h3>
-        <p>{this.state.fullName}</p>
-        <p>{`ID: ${this.state.id}`}</p>
-        {this.renderStatus()}
-        {this.renderLog()}
+        <h3>{this.props.browser.name}</h3>
+        {this.renderLastResult()}
+        <div className="body">
+          <p>{this.props.browser.fullName}</p>
+          <p>{`ID: ${this.props.browser.id}`}</p>
+          {this.renderStatus()}
+          {this.renderLog()}
+        </div>
       </div>
     );
   }
