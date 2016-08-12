@@ -49,13 +49,12 @@ const compilers = targets.map(function(target) {
     debug: DEBUG,
     paths: target.paths,
     extensions: extensions,
-    transform: ['browserify-shim']
+    transform: ['babelify', 'browserify-shim']
   });
   boObject = boObject.on('update', compileJs);
   boObject = boObject.on('log',function(msg) {
     console.log(`${target.name}: ${msg}`);
   });
-  //boObject = boObject.transform(shim);
   boObject = boObject.require(target.src, { entry: true });
 
   //--------------------------------------------------------------------------

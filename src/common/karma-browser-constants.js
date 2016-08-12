@@ -1,0 +1,7 @@
+module.exports = {
+  READY : 1,
+  EXECUTING : 2,
+  READY_DISCONNECTED : 3,
+  EXECUTING_DISCONNECTED : 4,
+  DISCONNECTED : 5
+};
