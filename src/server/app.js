@@ -11,6 +11,13 @@ const logger = require('morgan');
 
 const config = require('../../config');
 
+const onBrowserCompleteData = require('../../datalogs/onBrowserComplete.json');
+const onBrowserStartData = require('../../datalogs/onBrowserStart.json');
+const onRunStartData = require('../../datalogs/onRunStart.json');
+const specFailureData = require('../../datalogs/specFailure.json');
+const specSkippedData = require('../../datalogs/specSkipped.json');
+const specSuccessData = require('../../datalogs/specSuccess.json');
+
 const WWW_ROOT = process.env.WWW_ROOT || path.join(__dirname, '..', 'www');
 const INDEX_HTML = path.join(WWW_ROOT, 'index.html');
 const PORT = process.env.PORT || 8123;
@@ -32,6 +39,9 @@ app.use(express.static(WWW_ROOT));
 
 io.on('connection', function(socket) {
   console.log('connection');
+  setTimeout(function() {
+    io.emit('specSuccess', onBrowserStartData.id, specSuccessData);
+  });
 });
 
 server.listen(PORT, function() {

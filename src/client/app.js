@@ -1,30 +1,57 @@
-const $ = require('jquery');
-const Template = require('Template');
-//const io = require('socket.io-client');
+import React from 'react';
+import ReactDOM from 'react-dom';
+import io from 'socket.io-client';
 
-const templates = {};
+import {
+  CONNECT, DISCONNECT,
+  RUN_START, RUN_COMPLETE,
+  BROWSER_START, BROWSER_COMPLETE,
+  SPEC_SUCCESS, SPEC_SKIPPED, SPEC_FAILURE
+} from 'app-constants';
 
-//==============================================================================
-document.addEventListener('DOMContentLoaded', function() {
-  console.log('LOADED');
+import dispatcher from 'Dispatcher';
+import Application from 'components/Application';
 
-  const page = {
-    title: 'Foo Title',
-    renderResults: function() {
-      return [templates['result'].render({
-        title: "Result 1",
-        body: "Body 1",
-        status: "success"
-      }), templates['result'].render({
-        title: "Result 2",
-        body: "Body 2",
-        status: "danger"
-      })];
-    }
-  };
+let connection = null;
 
-  templates['page'] = new Template($('div[data-template-id="page"]').get(0));
-  templates['result'] = new Template($('div[data-template-id="result"]').get(0));
+document.addEventListener('DOMContentLoaded', () => {
+  ReactDOM.render(<Application />, document.getElementById('app'), () => {
+    connection = io();
 
-  $('#app').get(0).appendChild(templates['page'].render(page));
+    connection.on(CONNECT, () => {
+      dispatcher.send(CONNECT, connection);
+    });
+
+    connection.on(DISCONNECT, () => {
+      dispatcher.send(DISCONNECT, connection);
+    });
+
+    connection.on(RUN_START, () => {
+      dispatcher.send(RUN_START);
+    });
+
+    connection.on(RUN_COMPLETE, () => {
+      dispatcher.send(RUN_COMPLETE);
+    });
+
+    connection.on(BROWSER_START, (browser) => {
+      dispatcher.send(BROWSER_START, browser);
+    });
+
+    connection.on(BROWSER_COMPLETE, (browserId) => {
+      dispatcher.send(BROWSER_COMPLETE, browserId);
+    });
+
+    connection.on(SPEC_SUCCESS, (browserId, result) => {
+      dispatcher.send(SPEC_SUCCESS, browserId, result);
+    });
+
+    connection.on(SPEC_SKIPPED, (browserId, result) => {
+      dispatcher.send(SPEC_SKIPPED, browserId, result);
+    });
+
+    connection.on(SPEC_FAILURE, (browserId, result) => {
+      dispatcher.send(SPEC_FAILURE, browserId, result);
+    });
+  });
 }, false);
