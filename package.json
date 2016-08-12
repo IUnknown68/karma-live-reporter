@@ -1,0 +1,49 @@
+{
+  "name": "KarmaLiveReporter",
+  "version": "0.1.0",
+  "scripts": {
+    "build:client": "gulp compile",
+    "build": "npm run build:client",
+    "serve": "node build/server/app.js",
+    "dev": "gulp"
+  },
+  "devDependencies": {
+    "autoprefixer-core": "^6.0.1",
+    "bootstrap": "^3.3.7",
+    "browserify": "^13.1.0",
+    "browserify-shim": "^3.8.12",
+    "bufferutil": "^1.2.1",
+    "classnames": "^2.2.5",
+    "express": "^4.14.0",
+    "gulp": "^3.9.1",
+    "gulp-less": "^3.1.0",
+    "gulp-nodemon": "^2.1.0",
+    "gulp-postcss": "^6.1.1",
+    "gulp-sourcemaps": "^1.6.0",
+    "gulp-watch": "^4.3.9",
+    "jquery": "^3.1.0",
+    "lodash": "^4.14.2",
+    "morgan": "^1.7.0",
+    "nodemon": "^1.10.0",
+    "socket.io": "^1.4.8",
+    "socket.io-client": "^1.4.8",
+    "uglifyify": "^3.0.2",
+    "utf-8-validate": "^1.2.1",
+    "watchify": "^3.7.0"
+  },
+  "config": {
+    "SRC": "src",
+    "CLIENT": "client",
+    "SERVER": "server",
+    "COMMON": "common",
+    "BUILD": "build",
+    "WWW": "www",
+    "JS": "js",
+    "CSS": "css",
+    "APP": "app"
+  },
+  "browserify-shim": {
+    "jquery": "$"
+  },
+  "dependencies": {}
+}
