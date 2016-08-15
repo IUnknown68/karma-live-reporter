@@ -7,96 +7,151 @@ import {
   RUN_START, RUN_COMPLETE,
   BROWSER_START, BROWSER_COMPLETE,
   BROWSER_LOG, BROWSER_ERROR,
-  SPEC_SUCCESS, SPEC_SKIPPED, SPEC_FAILURE
+  SPEC_COMPLETED
 } from 'app-constants';
 
 import {
-  READY, EXECUTING,
-  READY_DISCONNECTED, EXECUTING_DISCONNECTED,
-  DISCONNECTED
-} from 'karma-browser-constants.js';
+  SummaryTab, ResultTab, ConsoleTab, ErrorsTab
+} from 'components/BrowserTabs';
+
+
+const TABS = [
+  {
+    title: 'Summary',
+    component: SummaryTab
+  },
+  {
+    title: 'Result',
+    component: ResultTab
+  },
+  {
+    title: 'Console',
+    component: ConsoleTab
+  },
+  {
+    title: 'Errors',
+    component: ErrorsTab
+  }
+];
 
 //==============================================================================
 export default class Browser extends Component {
   static listener = {
     [BROWSER_START]: function(browser) {
-      if (browser.id === this.state.id) {
-        //console.log(browser);
-        this.setState(browser);
+      if (browser.id !== this.props.browser.id) {
+        return;
       }
+      this.setState({
+        state: browser.state,
+        log: [],
+        errors: [],
+        results: [],
+        lastResult: browser.lastResult
+      });
     },
     [BROWSER_COMPLETE]: function(browser) {
-      if (browser.id === this.state.id) {
-        console.log(BROWSER_COMPLETE, browser.state);
-        this.setState(browser);
+      if (browser.id !== this.props.browser.id) {
+        return;
       }
+      this.setState({
+        state: browser.state,
+        lastResult: browser.lastResult
+      });
     },
-    [SPEC_SUCCESS]: function(browser, result) {
-      if (browser.id === this.state.id) {
-        //console.log(browser, result);
-        this.setState(browser);
+    [SPEC_COMPLETED]: function(browser, result) {
+      if (browser.id !== this.props.browser.id) {
+        return;
       }
+      this.state.results.push(result);
+      this.forceUpdate();
     },
     [BROWSER_LOG]: function(browser, log, type) {
-      if (browser.id === this.state.id) {
-        //console.log(BROWSER_LOG, browser, log, type);
+      if (browser.id !== this.props.browser.id) {
+        return;
       }
+      this.state.log.push({log, type});
+      this.forceUpdate();
     },
     [BROWSER_ERROR]: function(browser, error) {
-      if (browser.id === this.state.id) {
-        //console.log(BROWSER_ERROR, browser, error);
+      if (browser.id !== this.props.browser.id) {
+        return;
       }
+      this.state.errors.push({error});
+      this.forceUpdate();
     }
   };
 
   //----------------------------------------------------------------------------
   constructor(props) {
     super(props);
-    this.state = props.browser;
+    this.state = {
+      state: props.browser.state,
+      log: props.browser.log || [],
+      errors: props.browser.errors || [],
+      results: props.browser.results || [],
+      lastResult: props.browser.lastResult,
+      activeTab: 0
+    };
+    this._logIndex = 0;
     attachListener(this);
   }
 
   //----------------------------------------------------------------------------
-  renderStatus() {
-    let state = '';
-    if (this.state.lastResult && this.state.lastResult.disconnected) {
-      state = 'Disconnected';
-    }
-    else {
-      switch(this.state.state) {
-        case READY:
-          state = 'Ready.'; break;
-        case EXECUTING:
-          state = 'Running...'; break;
-        case READY_DISCONNECTED:
-          state = 'Disconnected'; break;
-        case EXECUTING_DISCONNECTED:
-          state = 'Disconnecting...'; break;
-        case DISCONNECTED:
-          state = 'Disconnected.'; break;
-      }
-    }
+  selectTab(tabIndex) {
+    this.setState({activeTab: tabIndex});
+  }
+
+  //----------------------------------------------------------------------------
+  renderTabHeader(tab, index) {
+    const className = (index === this.state.activeTab)
+      ? 'active'
+      : '';
     return (
-      <div className="status">{state}</div>
+      <li key={index} className={className}>
+        <a href="javascript:void(0)" onClick={this.selectTab.bind(this, index)}>{tab.title}</a>
+      </li>
     );
   }
 
   //----------------------------------------------------------------------------
-  renderLog() {
-    return false;
+  renderTabHeaders() {
+    return (
+      <ul className="nav nav-tabs">
+        {TABS.map((tab, index) => this.renderTabHeader(tab, index))}
+      </ul>
+    );
+  }
+
+  //----------------------------------------------------------------------------
+  renderTabBody(tab, index) {
+    const className = (index === this.state.activeTab)
+      ? 'active'
+      : '';
+    const TabComp = tab.component;
+    return (
+      <div className={className} key={index}>
+        <TabComp browser={this.props.browser} {...this.state} />
+      </div>
+    );
+  }
+
+  //----------------------------------------------------------------------------
+  renderTabBodies() {
+    return (
+      <div className="body">
+        {TABS.map((tab, index) => this.renderTabBody(tab, index))}
+      </div>
+    );
   }
 
   //----------------------------------------------------------------------------
   render() {
     return (
-      <div className="browser">
-        <h3>{this.state.name}</h3>
-        <p>{this.state.fullName}</p>
-        <p>{`ID: ${this.state.id}`}</p>
-        {this.renderStatus()}
-        {this.renderLog()}
+      <div>
+        <h3>{this.props.browser.name}</h3>
+        {this.renderTabHeaders()}
+        {this.renderTabBodies()}
       </div>
     );
   }
 }
-

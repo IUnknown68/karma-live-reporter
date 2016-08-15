@@ -51,8 +51,8 @@ function compileLess(cb) {
   }
   stream = stream.pipe(Gulp.dest(config.BUILD_WWW_CSS));
 
-  // font awesome files
-  Gulp.src(path.join(config.ROOT, 'node_modules', 'font-awesome', 'fonts','/*'))
+  // bootstrap fonts
+  Gulp.src(path.join(config.ROOT, 'node_modules', 'bootstrap', 'fonts','/*'))
     .pipe(Gulp.dest(path.join(config.BUILD_WWW, 'fonts')));
 }
 

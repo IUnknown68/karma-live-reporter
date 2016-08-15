@@ -4,13 +4,12 @@ module.exports = {
   RUN_START        : 'RunStart',
   CURRENT_STATE    : 'CurrentState',
   RUN_COMPLETE     : 'RunComplete',
+  BROWSERS_CHANGE  : 'BrowsersChange',
   BROWSER_REGISTER : 'BrowserRegister',
   BROWSER_START    : 'BrowserStart',
   BROWSER_COMPLETE : 'BrowserComplete',
   BROWSER_LOG      : 'BrowserLog',
   BROWSER_ERROR    : 'BrowserError',
-  SPEC_SUCCESS     : 'specSuccess',
-  SPEC_SKIPPED     : 'specSkipped',
-  SPEC_FAILURE     : 'specFailure'
+  SPEC_COMPLETED   : 'specCompleted'
 };
 

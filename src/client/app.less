@@ -1,6 +1,216 @@
 @import 'bootstrap.less';
 
-#templates {
-  display: none;
-}
+@appPadding: 1em;
+@leftbarWidth: 15em;
 
+#appcontainer {
+  position: fixed;
+  left: @appPadding;
+  right: @appPadding;
+  top: @appPadding;
+  bottom: @appPadding;
+
+  #browserlist {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 4em;
+    bottom: 0;
+
+    .browser {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 0;
+      bottom: 0;
+      pointer-events: none;
+
+      .tabcontrol {
+        position: absolute;
+        left: 0;
+        top: 1em;
+        width: @leftbarWidth;
+        overflow: hidden;
+        z-index: 1;
+        pointer-events: none;
+
+        &.tab-1 {
+          margin-top: 0;
+        }
+
+        &.tab-2 {
+          margin-top: 3em;
+        }
+
+        &.tab-3 {
+          margin-top: 6em;
+        }
+
+        h4 {
+          pointer-events: all;
+          cursor: pointer;
+          margin: 0 -1px @appPadding 0.5em;
+          padding: 0.5em;
+          border: 1px solid #ccc;
+          border-right-width: 0;
+          border-radius: 0.3em 0 0 0.3em;
+          overflow: hidden;
+          white-space: nowrap;
+          text-overflow: ellipsis;
+          color: #aaa;
+        }
+      }
+
+      .tabbody {
+        pointer-events: all;
+        position: absolute;
+        left: @leftbarWidth;
+        right: 0;
+        top: 0;
+        bottom: 0;
+        border: 1px solid #ccc;
+        border-radius: 1em;
+        overflow: hidden;
+        box-shadow: 0.3em 0.3em @appPadding rgba(0,0,0,0.2);
+        display: none;
+
+        &>div {
+          padding: 1em;
+          position: absolute;
+          left: 0;
+          top: 0;
+          right: 0;
+          bottom: 0;
+
+          h3 {
+            margin-top: 0;
+          }
+          .body {
+            display: block;
+            position: absolute;
+            left: 1em;
+            right: 1em;
+            bottom: 1em;
+            top: 7em;
+
+            &>div {
+              display: none;
+              &.active {
+                display: block;
+              }
+            }
+
+            .logger {
+              display: block;
+              height: 100%;
+              font-family: monospace;
+              line-height: 1.1em;
+              overflow: auto;
+              border: 1px solid #ccc;
+              border-radius: 0.3em;
+              padding: 0.3em;
+              background: #333;
+              color: #ccc;
+
+              &.console, &.results {
+                span.glyphicon {
+                  margin-right: 0.5em;
+                }
+              }
+
+              &.console {
+                .error {
+                  color: #ff633b;
+                }
+
+                .warn {
+                  color: #fffd64;
+                }
+
+                .log {
+                  color: white;
+                }
+
+                .debug {
+                  color: #ccc;
+                }
+
+                .info {
+                  color: #90f5fc
+                }
+              }
+
+              &.results {
+                color: white;
+
+                .indent {
+                  margin-left: 1.5em;
+                }
+
+                .description {
+                  &.failed {
+                    color: #ff0000;
+                  }
+
+                  &.succeeded {
+                    color: #00ff00;
+                  }
+
+                  &.skipped {
+                    color: grey;
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+
+      &.ready {
+        h4, .tabbody {
+          background: white;
+        }
+      }
+
+      &.success {
+        h4, .tabbody {
+          background: #d7ffd9;
+        }
+      }
+
+      &.failed {
+        h4, .tabbody {
+          background: #f6dbdb;
+        }
+      }
+
+      &.disconnected {
+        h4, .tabbody {
+          background: #f6f6f6;
+        }
+      }
+
+      &.running {
+        h4, .tabbody {
+          background: #fbfed1;
+        }
+      }
+
+      &.active {
+        .tabcontrol {
+          left: 1px;
+          z-index: 2;
+          h4 {
+            cursor: initial;
+            margin: 0 0 @appPadding 0;
+            box-shadow: 0.3em 0.3em @appPadding rgba(0,0,0,0.2);
+            color: #000;
+          }
+        }
+        .tabbody {
+          display: block;
+        }
+      }
+    }
+  }
+}
