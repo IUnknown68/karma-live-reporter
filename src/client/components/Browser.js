@@ -16,7 +16,10 @@ import {
   DISCONNECTED
 } from 'karma-browser-constants.js';
 
-
+import LoggerView from 'components/LoggerView';
+import LogEntry from 'components/LogEntry';
+import ErrorEntry from 'components/ErrorEntry';
+import ResultEntry from 'components/ResultEntry';
 
 class AutoScroll {
   constructor(element) {
@@ -40,6 +43,7 @@ class AutoScroll {
 
 
 
+
 //==============================================================================
 export default class Browser extends Component {
   static listener = {
@@ -47,6 +51,9 @@ export default class Browser extends Component {
       if (browser.id === this.props.browser.id) {
         this.setState({
           state: browser.state,
+          log: [],
+          errors: [],
+          results: [],
           lastResult: browser.lastResult
         });
       }
@@ -61,24 +68,32 @@ export default class Browser extends Component {
     },
     [SPEC_SUCCESS]: function(browser, result) {
       if (browser.id === this.props.browser.id) {
+        this.state.results.push(result);
+        this.forceUpdate();
       }
     },
     [SPEC_SKIPPED]: function(browser, result) {
       if (browser.id === this.props.browser.id) {
+        this.state.results.push(result);
+        this.forceUpdate();
       }
     },
     [SPEC_FAILURE]: function(browser, result) {
       if (browser.id === this.props.browser.id) {
+        this.state.results.push(result);
+        this.forceUpdate();
       }
     },
     [BROWSER_LOG]: function(browser, log, type) {
       if (browser.id === this.props.browser.id) {
-        this.doLog(log, type);
+        this.state.log.push({log, type});
+        this.forceUpdate();
       }
     },
     [BROWSER_ERROR]: function(browser, error) {
       if (browser.id === this.props.browser.id) {
-        this.doError(error);
+        this.state.errors.push({error});
+        this.forceUpdate();
       }
     }
   };
@@ -88,50 +103,13 @@ export default class Browser extends Component {
     super(props);
     this.state = {
       state: props.browser.state,
+      log: props.browser.log || [],
+      errors: props.browser.errors || [],
+      results: props.browser.results || [],
       lastResult: props.browser.lastResult
     };
     this._logIndex = 0;
     attachListener(this);
-  }
-
-  //----------------------------------------------------------------------------
-  componentDidMount() {
-    this.autoScrollLog = new AutoScroll(this.refs.logger);
-    // The log gets initially set to what the browser has. Later on we don't use
-    // browser.log anymore, since we keep what we have and add only what's new
-    // via BROWSER_LOG.
-    this.props.browser.log.forEach(entry => {
-      this.doLog(entry.log, entry.type);
-    });
-  }
-
-  //----------------------------------------------------------------------------
-  doLog(log, type) {
-    const newNode = document.createElement('div');
-    newNode.className = type;
-    let className = 'glyphicon glyphicon-';
-    switch(type) {
-      case 'info':
-        className += 'info-sign';
-        break;
-      case 'warn':
-        className += 'warning-sign';
-        break;
-      case 'error':
-        className += 'remove-sign';
-        break;
-      default:
-        className = null;
-        break;
-    }
-    if (className) {
-      const span = document.createElement('span');
-      span.className = className;
-      newNode.appendChild(span);
-    }
-    newNode.appendChild(document.createTextNode(log));
-    this.refs.logger.appendChild(newNode);
-    this.autoScrollLog.update();
   }
 
   //----------------------------------------------------------------------------
@@ -168,51 +146,24 @@ export default class Browser extends Component {
     );
   }
 
-/*
-  //----------------------------------------------------------------------------
-  renderLogEntry(log, type) {
-    const index = this._logIndex;
-    ++this._logIndex;
-
-    let className = 'glyphicon glyphicon-';
-    switch(type) {
-      case 'info':
-        className += 'info-sign';
-        break;
-      case 'warn':
-        className += 'warning-sign';
-        break;
-      case 'error':
-        className += 'remove-sign';
-        break;
-      default:
-        className = null;
-        break;
-    }
-
-    const span = (className)
-      ? (<span className={className} />)
-      : false;
-
-    return (
-      <div key={index} className={entry.type}>
-        {span}
-        {log}
-      </div>
-    );
-  }
-
-  //----------------------------------------------------------------------------
-  renderLogEntries() {
-    return this.state.log.map(entry =>
-      this.renderLogEntry(entry.log, entry.type);
-    );
-  }
-*/
   //----------------------------------------------------------------------------
   renderLog() {
     return (
-      <div ref="logger" className="logger" />
+      <LoggerView className="logger" entryComponent={LogEntry} entries={this.state.log} />
+    );
+  }
+
+  //----------------------------------------------------------------------------
+  renderErrors() {
+    return (
+      <LoggerView className="logger" entryComponent={ErrorEntry} entries={this.state.errors} />
+    );
+  }
+
+  //----------------------------------------------------------------------------
+  renderResults() {
+    return (
+      <LoggerView className="logger" entryComponent={ResultEntry} entries={this.state.results} />
     );
   }
 
@@ -244,6 +195,8 @@ export default class Browser extends Component {
           <p>{`ID: ${this.props.browser.id}`}</p>
           {this.renderStatus()}
           {this.renderLog()}
+          {this.renderErrors()}
+          {this.renderResults()}
         </div>
       </div>
     );
