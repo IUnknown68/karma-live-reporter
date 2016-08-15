@@ -27,6 +27,15 @@ export default class BrowserList extends Component {
   }
 
   //----------------------------------------------------------------------------
+  renderEmpty() {
+    return (
+      <li className="list-group-item">
+        <h4>Currently no Browsers available.</h4>
+      </li>
+    );
+  }
+
+  //----------------------------------------------------------------------------
   renderItems() {
     return map(this.state.browsers, (browser, index) => (
       <li key={index} className="list-group-item">
@@ -39,7 +48,10 @@ export default class BrowserList extends Component {
   render() {
     return (
       <ul className="list-group">
-        {this.renderItems()}
+        {(this.state.browsers.length)
+          ? this.renderItems()
+          : this.renderEmpty()
+        }
       </ul>
     );
   }

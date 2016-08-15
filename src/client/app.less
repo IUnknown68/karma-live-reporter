@@ -5,6 +5,51 @@
 }
 
 
-.browser .body {
-  display: none;
+.browser {
+  h3 {
+    margin-top: 0;
+  }
+  .body {
+    display: block;
+    .logger {
+      display: block;
+      height: 20em;
+      font-family: monospace;
+      line-height: 1.1em;
+      overflow: auto;
+      border: 1px solid #ccc;
+      border-radius: 0.3em;
+      padding: 0.3em;
+      background: #333;
+      color: #ccc;
+
+      div {
+        margin-left: 1.2em;
+        span {
+          margin-left: -1.2em;
+          margin-right: 0.1em;
+        }
+      }
+
+      .error {
+        color: #ff633b;
+      }
+
+      .warn {
+        color: #fffd64;
+      }
+
+      .log {
+        color: white;
+      }
+
+      .debug {
+        color: #ccc;
+      }
+
+      .info {
+        color: #90f5fc
+      }
+    }
+  }
 }
