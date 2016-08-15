@@ -10,8 +10,6 @@ module.exports = {
   BROWSER_COMPLETE : 'BrowserComplete',
   BROWSER_LOG      : 'BrowserLog',
   BROWSER_ERROR    : 'BrowserError',
-  SPEC_SUCCESS     : 'specSuccess',
-  SPEC_SKIPPED     : 'specSkipped',
-  SPEC_FAILURE     : 'specFailure'
+  SPEC_COMPLETED   : 'specCompleted'
 };
 

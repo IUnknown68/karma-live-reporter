@@ -1,8 +1,10 @@
 //==============================================================================
 import React, { Component } from 'react';
+import { ResultEntry } from 'components/LoggerEntries';
+import { isEqual } from 'lodash';
 
 //==============================================================================
-export default class LoggerView extends Component {
+export default class ResultLoggerView extends Component {
   //----------------------------------------------------------------------------
   constructor(props) {
     super(props);
@@ -36,22 +38,58 @@ export default class LoggerView extends Component {
     this.refs.root.addEventListener('scroll', () => {
       this.scrollEnabled = this.isAtEnd();
     });
-    setTimeout(this._update, 10);
+    this._update();
+    //setTimeout(this._update, 10);
   }
 
   //----------------------------------------------------------------------------
   componentDidUpdate() {
-    setTimeout(this._update, 10);
+    this._update();
+//    setTimeout(this._update, 10);
   }
 
   //----------------------------------------------------------------------------
   renderEntries() {
-    const LogEntry = this.props.entryComponent;
-    return (this.props.entries)
-      ? this.props.entries.map((entry, index) => (
-        <LogEntry key={index} {...entry} />
-      ))
-      : false;
+    if (!this.props.entries) {
+      return false;
+    }
+    let currentSuite = [];
+
+    return this.props.entries.map((entry, index) => {
+      const suite = entry.suite;
+      const arDiff = [];
+      const items = [];
+
+      const len = Math.max(currentSuite.length, suite.length);
+      for (let n = 0; n < len; n++) {
+        if (currentSuite[n] !== suite[n]) {
+          arDiff.push(suite[n]);
+        }
+      }
+
+      let refreshTo = suite.length;
+      let refreshFrom = refreshTo - arDiff.length;
+
+      for (let n = refreshFrom; n < refreshTo; n++) {
+        const style = {
+          marginLeft: `${n}em`
+        };
+        items.push(
+          <div key={items.length} style={style}>
+            {suite[n]}
+          </div>
+        );
+      }
+      items.push(<ResultEntry key={items.length} {...entry} />);
+
+      currentSuite = suite;
+
+      return (
+        <div key={index} >
+          {items}
+        </div>
+      );
+    });
   }
 
   //----------------------------------------------------------------------------

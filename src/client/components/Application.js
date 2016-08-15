@@ -34,7 +34,7 @@ export default class Application extends Component {
   render() {
     const connectionStatusClasses = classNames({
       'alert-info': this.state.connected,
-      'alert-warinig': !this.state.connected
+      'alert-warning': !this.state.connected
     }, 'alert');
     const connectionMsg = (this.state.connected)
       ? 'Connected'
@@ -48,3 +48,7 @@ export default class Application extends Component {
   }
 }
 
+/*
+        <BrowserList />
+
+ */

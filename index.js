@@ -9,43 +9,67 @@ const WWW_ROOT = path.join(__dirname, 'build', 'www');
 const INDEX_HTML = path.join(WWW_ROOT, 'index.html');
 const PORT = 8255;
 
+const LIVE_REPORTER_DATA_PROP = '_karmaLiveReporterData';
+
 const app = express();
 const server = createServer(app);
 const io = listen(server);
 
+const browserProps = [
+  'id', 'name', 'fullName', 'state'
+];
+
+const extendedBrowserProps = [
+  'log', 'errors', 'results'
+];
+
+const lastResultProps = [
+  'success', 'failed', 'skipped',
+  'total', 'totalTime', 'netTime',
+  'error', 'disconnected'
+];
+
 var _browsers = null;
 
-function lastResultToJson(lastResult) {
-  return {
-    success: lastResult.success,
-    failed: lastResult.failed,
-    skipped: lastResult.skipped,
-    total: lastResult.total,
-    totalTime: lastResult.totalTime,
-    netTime: lastResult.netTime,
-    error: lastResult.error,
-    disconnected: lastResult.disconnected
-  };
+function mapProps(src, props, target) {
+  target = target || {};
+  props.forEach(function(name) {
+    target[name] = src[name];
+  });
+  return target;
 }
 
-function browserToJson(browser) {
-  return {
-    id: browser.id,
-    name: browser.name,
-    fullName: browser.fullName,
-    state: browser.state,
-    lastResult: lastResultToJson(browser.lastResult)
-  };
+function mapLastResult(lastResult) {
+  return mapProps(lastResult,lastResultProps);
 }
 
-function browsersToJson() {
-  console.log(`browsersToJson`, _browsers);
+function mapBrowser(browser, mapExtendedProps) {
+  var props = {
+    lastResult: mapLastResult(browser.lastResult)
+  };
+  if (mapExtendedProps) {
+    props = mapProps(browser[LIVE_REPORTER_DATA_PROP], extendedBrowserProps, props);
+  }
+  return mapProps(browser, browserProps, props);
+}
+
+function mapAllBrowsers() {
   if (!_browsers) {
     return [];
   }
   return _browsers.map(function(browser) {
-    return browserToJson(browser);
+    return mapBrowser(browser, true);
   });
+}
+
+function updateBrowser(browser, reset) {
+  if ('undefined' === typeof browser[LIVE_REPORTER_DATA_PROP] || reset) {
+    browser[LIVE_REPORTER_DATA_PROP] = {
+      log: [],
+      errors: [],
+      results: []
+    };
+  }
 }
 
 // index.html
@@ -58,7 +82,7 @@ app.use(express.static(WWW_ROOT));
 
 // send initial data to a new connection
 io.on('connection', function(socket) {
-  socket.emit(consts.BROWSERS_CHANGE, browsersToJson());
+  socket.emit(consts.BROWSERS_CHANGE, mapAllBrowsers());
 });
 
 // listen
@@ -67,6 +91,7 @@ server.listen(PORT);
 // karma-plugin
 const LiveReporter = function(baseReporterDecorator, config, emitter, logger, helper, formatError) {
   baseReporterDecorator(this);
+  //console.log(config);
 
   this.onRunStart = function() {
     io.emit(consts.RUN_START);
@@ -77,43 +102,40 @@ const LiveReporter = function(baseReporterDecorator, config, emitter, logger, he
   }
 
   this.onBrowsersChange = function(browsers) {
-    console.log('onBrowsersChange', browsers);
-    _browsers = (browsers)
-      ? browsers
-      : _browsers;
-    io.emit(consts.BROWSERS_CHANGE, browsersToJson());
+    _browsers = browsers;
+    _browsers.forEach(function(browser) {
+      updateBrowser(browser);
+    });
+    io.emit(consts.BROWSERS_CHANGE, mapAllBrowsers());
   }
 
   this.onBrowserStart = function(browser) {
-    io.emit(consts.BROWSER_START, browserToJson(browser));
-  }
-
-  this.onBrowserError = function(browser, error) {
-    io.emit(consts.BROWSER_ERROR, browserToJson(browser), error);
-  }
-
-  this.onBrowserRegister = function(browser) {
-    io.emit(consts.BROWSER_REGISTER, browserToJson(browser));
+    updateBrowser(browser, true);
+    io.emit(consts.BROWSER_START, mapBrowser(browser, false));
   }
 
   this.onBrowserLog = function(browser, log, type) {
-    io.emit(consts.BROWSER_LOG, browserToJson(browser), log, type);
+    browser[LIVE_REPORTER_DATA_PROP].log.push({log: log, type: type});
+    io.emit(consts.BROWSER_LOG, mapBrowser(browser, false), log, type);
+  }
+
+  this.onBrowserError = function(browser, error) {
+    browser[LIVE_REPORTER_DATA_PROP].errors.push(error);
+    io.emit(consts.BROWSER_ERROR, mapBrowser(browser, false), error);
+  }
+
+  this.onBrowserRegister = function(browser) {
+    updateBrowser(browser);
+    io.emit(consts.BROWSER_REGISTER, mapBrowser(browser, true));
   }
 
   this.onBrowserComplete = function(browser) {
-    io.emit(consts.BROWSER_COMPLETE, browserToJson(browser));
+    io.emit(consts.BROWSER_COMPLETE, mapBrowser(browser, false));
   }
 
-  this.specSuccess = function(browser, result) {
-    io.emit(consts.SPEC_SUCCESS, browserToJson(browser), result);
-  }
-
-  this.specSkipped = function(browser, result) {
-    io.emit(consts.SPEC_SKIPPED, browserToJson(browser), result);
-  }
-
-  this.specFailure = function(browser, result) {
-    io.emit(consts.SPEC_FAILURE, browserToJson(browser), result);
+  this.specSuccess = this.specSkipped = this.specFailure = function(browser, result) {
+    browser[LIVE_REPORTER_DATA_PROP].results.push(result);
+    io.emit(consts.SPEC_COMPLETED, mapBrowser(browser, false), result);
   }
 };
 

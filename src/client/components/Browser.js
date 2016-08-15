@@ -7,94 +7,77 @@ import {
   RUN_START, RUN_COMPLETE,
   BROWSER_START, BROWSER_COMPLETE,
   BROWSER_LOG, BROWSER_ERROR,
-  SPEC_SUCCESS, SPEC_SKIPPED, SPEC_FAILURE
+  SPEC_COMPLETED
 } from 'app-constants';
 
 import {
-  READY, EXECUTING,
-  READY_DISCONNECTED, EXECUTING_DISCONNECTED,
-  DISCONNECTED
-} from 'karma-browser-constants.js';
+  SummaryTab, ResultTab, ConsoleTab, ErrorsTab
+} from 'components/BrowserTabs';
 
-import LoggerView from 'components/LoggerView';
-import LogEntry from 'components/LogEntry';
-import ErrorEntry from 'components/ErrorEntry';
-import ResultEntry from 'components/ResultEntry';
 
-class AutoScroll {
-  constructor(element) {
-    this.element = element;
-    this.element.addEventListener('scroll', () => {
-      this.scrollEnabled = this.isAtEnd();
-    });
-    this.scrollEnabled = this.isAtEnd();
+const TABS = [
+  {
+    title: 'Summary',
+    component: SummaryTab
+  },
+  {
+    title: 'Result',
+    component: ResultTab
+  },
+  {
+    title: 'Console',
+    component: ConsoleTab
+  },
+  {
+    title: 'Errors',
+    component: ErrorsTab
   }
-
-  isAtEnd() {
-    return this.element.scrollHeight - this.element.scrollTop === this.element.clientHeight;
-  }
-
-  update() {
-    if (this.scrollEnabled) {
-      this.element.scrollTop = this.element.scrollHeight;
-    }
-  }
-}
-
-
-
+];
 
 //==============================================================================
 export default class Browser extends Component {
   static listener = {
     [BROWSER_START]: function(browser) {
-      if (browser.id === this.props.browser.id) {
-        this.setState({
-          state: browser.state,
-          log: [],
-          errors: [],
-          results: [],
-          lastResult: browser.lastResult
-        });
+      if (browser.id !== this.props.browser.id) {
+        return;
       }
+      this.setState({
+        state: browser.state,
+        log: [],
+        errors: [],
+        results: [],
+        lastResult: browser.lastResult
+      });
     },
     [BROWSER_COMPLETE]: function(browser) {
-      if (browser.id === this.props.browser.id) {
-        this.setState({
-          state: browser.state,
-          lastResult: browser.lastResult
-        });
+      if (browser.id !== this.props.browser.id) {
+        return;
       }
+      this.setState({
+        state: browser.state,
+        lastResult: browser.lastResult
+      });
     },
-    [SPEC_SUCCESS]: function(browser, result) {
-      if (browser.id === this.props.browser.id) {
-        this.state.results.push(result);
-        this.forceUpdate();
+    [SPEC_COMPLETED]: function(browser, result) {
+      if (browser.id !== this.props.browser.id) {
+        return;
       }
-    },
-    [SPEC_SKIPPED]: function(browser, result) {
-      if (browser.id === this.props.browser.id) {
-        this.state.results.push(result);
-        this.forceUpdate();
-      }
-    },
-    [SPEC_FAILURE]: function(browser, result) {
-      if (browser.id === this.props.browser.id) {
-        this.state.results.push(result);
-        this.forceUpdate();
-      }
+      this.state.results.push(result);
+      this.forceUpdate();
     },
     [BROWSER_LOG]: function(browser, log, type) {
-      if (browser.id === this.props.browser.id) {
-        this.state.log.push({log, type});
-        this.forceUpdate();
+      if (browser.id !== this.props.browser.id) {
+        return;
       }
+      this.state.log.push({log, type});
+      this.forceUpdate();
     },
     [BROWSER_ERROR]: function(browser, error) {
-      if (browser.id === this.props.browser.id) {
-        this.state.errors.push({error});
-        this.forceUpdate();
+      if (browser.id !== this.props.browser.id) {
+        return;
       }
+      this.state.errors.push({error});
+      this.forceUpdate();
     }
   };
 
@@ -106,100 +89,69 @@ export default class Browser extends Component {
       log: props.browser.log || [],
       errors: props.browser.errors || [],
       results: props.browser.results || [],
-      lastResult: props.browser.lastResult
+      lastResult: props.browser.lastResult,
+      activeTab: 0
     };
     this._logIndex = 0;
     attachListener(this);
   }
 
   //----------------------------------------------------------------------------
-  doError(error) {
-    console.warn(error);
+  selectTab(tabIndex) {
+    this.setState({activeTab: tabIndex});
   }
 
   //----------------------------------------------------------------------------
-  toggle() {
-  }
-
-  //----------------------------------------------------------------------------
-  renderStatus() {
-    let state = '';
-    if (this.state.lastResult && this.state.lastResult.disconnected) {
-      state = 'Disconnected';
-    }
-    else {
-      switch(this.state.state) {
-        case READY:
-          state = 'Ready.'; break;
-        case EXECUTING:
-          state = 'Running...'; break;
-        case READY_DISCONNECTED:
-          state = 'Disconnected'; break;
-        case EXECUTING_DISCONNECTED:
-          state = 'Disconnecting...'; break;
-        case DISCONNECTED:
-          state = 'Disconnected.'; break;
-      }
-    }
+  renderTabHeader(tab, index) {
+    const className = (index === this.state.activeTab)
+      ? 'active'
+      : '';
     return (
-      <div className="status">{state}</div>
+      <li key={index} className={className}>
+        <a href="javascript:void(0)" onClick={this.selectTab.bind(this, index)}>{tab.title}</a>
+      </li>
     );
   }
 
   //----------------------------------------------------------------------------
-  renderLog() {
+  renderTabHeaders() {
     return (
-      <LoggerView className="logger" entryComponent={LogEntry} entries={this.state.log} />
+      <ul className="nav nav-tabs">
+        {TABS.map((tab, index) => this.renderTabHeader(tab, index))}
+      </ul>
     );
   }
 
   //----------------------------------------------------------------------------
-  renderErrors() {
+  renderTabBody(tab, index) {
+    const className = (index === this.state.activeTab)
+      ? 'active'
+      : '';
+    const TabComp = tab.component;
     return (
-      <LoggerView className="logger" entryComponent={ErrorEntry} entries={this.state.errors} />
+      <div className={className} key={index}>
+        <TabComp browser={this.props.browser} {...this.state} />
+      </div>
     );
   }
 
   //----------------------------------------------------------------------------
-  renderResults() {
+  renderTabBodies() {
     return (
-      <LoggerView className="logger" entryComponent={ResultEntry} entries={this.state.results} />
+      <div className="body">
+        {TABS.map((tab, index) => this.renderTabBody(tab, index))}
+      </div>
     );
-  }
-
-  //----------------------------------------------------------------------------
-  renderLastResult() {
-    return (this.state.lastResult)
-      ? (
-        <table className="table lastResult"><tbody>
-          <tr>
-            <td>Success: </td><td>{this.state.lastResult.success}</td>
-            <td>Failed: </td><td>{this.state.lastResult.failed}</td>
-            <td>Skipped: </td><td>{this.state.lastResult.skipped}</td>
-            <td>Total: </td><td>{this.state.lastResult.total}</td>
-            <td>Total time: </td><td>{this.state.lastResult.totalTime}</td>
-          </tr>
-        </tbody></table>
-      )
-      : false;
   }
 
   //----------------------------------------------------------------------------
   render() {
     return (
-      <div className="browser">
+      <div>
         <h3>{this.props.browser.name}</h3>
-        {this.renderLastResult()}
-        <div className="body">
-          <p>{this.props.browser.fullName}</p>
-          <p>{`ID: ${this.props.browser.id}`}</p>
-          {this.renderStatus()}
-          {this.renderLog()}
-          {this.renderErrors()}
-          {this.renderResults()}
-        </div>
+        {this.renderTabHeaders()}
+        {this.renderTabBodies()}
       </div>
     );
   }
 }
-
