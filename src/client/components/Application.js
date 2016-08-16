@@ -1,7 +1,7 @@
 //==============================================================================
 import React, { Component } from 'react';
 import dispatcher from 'Dispatcher';
-import classNames from 'classNames';
+import classNames from 'classnames';
 import attachListener from 'attachListener';
 import {
   CONNECT, DISCONNECT,

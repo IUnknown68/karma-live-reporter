@@ -3,7 +3,7 @@ import React, { Component } from 'react';
 import dispatcher from 'Dispatcher';
 import attachListener from 'attachListener';
 import {map} from 'lodash';
-import classNames from 'classNames';
+import classNames from 'classnames';
 import {
   RUN_START, BROWSERS_CHANGE
 } from 'app-constants';
