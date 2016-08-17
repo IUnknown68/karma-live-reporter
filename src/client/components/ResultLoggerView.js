@@ -1,15 +1,26 @@
 //==============================================================================
 import React, { Component } from 'react';
+import attachListener from 'attachListener';
 import { ResultEntry } from 'components/LoggerEntries';
-import { isEqual } from 'lodash';
+import { SPEC_COMPLETED } from 'app-constants';
 
 //==============================================================================
 export default class ResultLoggerView extends Component {
+  static listener = {
+    [SPEC_COMPLETED]: function(browser, result) {
+      if (browser.id !== this.props.browser.id) {
+        return;
+      }
+      this.appendLog(result, true);
+    }
+  };
+
   //----------------------------------------------------------------------------
   constructor(props) {
     super(props);
-    this._update = ::this._update;
+    this.updateScroll = ::this.updateScroll;
     this.scrollEnabled = true;
+    attachListener(this);
   }
 
   //----------------------------------------------------------------------------
@@ -24,7 +35,7 @@ export default class ResultLoggerView extends Component {
   }
 
   //----------------------------------------------------------------------------
-  _update() {
+  updateScroll() {
     if (!this.refs.root) {
       return;
     }
@@ -34,70 +45,118 @@ export default class ResultLoggerView extends Component {
   }
 
   //----------------------------------------------------------------------------
+  renderAllEntries() {
+    let node = this.refs.root;
+    while (node.firstChild) {
+      node.removeChild(node.firstChild);
+    }
+
+    this.currentSuite = [];
+    this.props.entries.forEach(entry => {
+      this.appendLog(entry, false);
+    });
+    setTimeout(this.updateScroll, 10);
+  }
+
+  //----------------------------------------------------------------------------
   componentDidMount() {
     this.refs.root.addEventListener('scroll', () => {
       this.scrollEnabled = this.isAtEnd();
     });
-    this._update();
-    //setTimeout(this._update, 10);
+    this.renderAllEntries();
+  }
+
+  //----------------------------------------------------------------------------
+  shouldComponentUpdate(nextProps, nextState) {
+    return nextProps.entries.length !== this.props.entries.length;
   }
 
   //----------------------------------------------------------------------------
   componentDidUpdate() {
-    this._update();
-//    setTimeout(this._update, 10);
+    this.renderAllEntries();
   }
 
   //----------------------------------------------------------------------------
-  renderEntries() {
-    if (!this.props.entries) {
-      return false;
+  appendLogEntryIcon(className, parentNode) {
+    let iconClassName = 'glyphicon glyphicon-';
+    switch(className) {
+      case 'skipped':
+        iconClassName += 'minus';
+        break;
+      case 'succeeded':
+        iconClassName += 'ok';
+        break;
+      case 'failed':
+        iconClassName += 'remove';
+        break;
     }
-    let currentSuite = [];
+    if (iconClassName) {
+      parentNode.appendChild(document.createElement('span'))
+        .className = iconClassName;
+    }
 
-    return this.props.entries.map((entry, index) => {
-      const suite = entry.suite;
-      const arDiff = [];
-      const items = [];
+  }
 
-      const len = Math.max(currentSuite.length, suite.length);
-      for (let n = 0; n < len; n++) {
-        if (currentSuite[n] !== suite[n]) {
-          arDiff.push(suite[n]);
-        }
-      }
-
-      let refreshTo = suite.length;
-      let refreshFrom = refreshTo - arDiff.length;
-
-      for (let n = refreshFrom; n < refreshTo; n++) {
-        const style = {
-          marginLeft: `${n}em`
-        };
-        items.push(
-          <div key={items.length} style={style}>
-            {suite[n]}
-          </div>
-        );
-      }
-      items.push(<ResultEntry key={items.length} {...entry} />);
-
-      currentSuite = suite;
-
-      return (
-        <div key={index} >
-          {items}
-        </div>
-      );
+  //----------------------------------------------------------------------------
+  appendLogEntryLog(entry, parentNode) {
+    if (!entry.log) {
+      return;
+    }
+    entry.log.forEach(logEntry => {
+      parentNode.appendChild(document.createElement('div'))
+        .className = 'indent';
     });
   }
 
   //----------------------------------------------------------------------------
+  appendLogEntry(entry, entryNode) {
+    const node = document.createElement('div');
+    const className = (entry.skipped)
+      ? 'skipped'
+      : (entry.success)
+        ? 'succeeded'
+        : 'failed';
+    node.className = `description ${className}`;
+
+    const indent = entry.suite.length;
+    node.style.marginLeft = `${indent}em`;
+
+    this.appendLogEntryIcon(className, node);
+    node.appendChild(document.createTextNode(entry.description));
+    this.appendLogEntryLog(entry, node);
+    entryNode.appendChild(node);
+  }
+
+  //----------------------------------------------------------------------------
+  appendLog(entry, update = false) {
+    const entryNode = document.createElement('div');
+
+    const suite = entry.suite;
+
+    let suiteChanged = false;
+    for (let n = 0; n < suite.length; n++) {
+      suiteChanged |= (this.currentSuite[n] !== suite[n]);
+      if (suiteChanged) {
+        const node = document.createElement('div');
+        node.style.marginLeft = `${n}em`;
+        entryNode.appendChild(node)
+          .appendChild(document.createTextNode(suite[n]));
+      }
+    }
+    this.currentSuite = suite;
+
+    this.appendLogEntry(entry, entryNode);
+    this.refs.root.appendChild(entryNode);
+    if (update) {
+      this.updateScroll();
+    }
+  }
+
+  //----------------------------------------------------------------------------
   render() {
+    console.log('RENDER');
     return (
-      <div ref="root" className={this.props.className || ''}>
-        {this.renderEntries()}
-      </div>
+      <div ref="root" className={this.props.className || ''} />
     );
   }
 

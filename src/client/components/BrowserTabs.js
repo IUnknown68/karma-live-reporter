@@ -12,7 +12,7 @@ import {
 } from 'karma-browser-constants';
 
 //==============================================================================
-export class SummaryTab  extends Component {
+class SummaryTab  extends Component {
   //----------------------------------------------------------------------------
   constructor(props) {
     super(props);
@@ -75,7 +75,7 @@ export class SummaryTab  extends Component {
 }
 
 //==============================================================================
-export class ResultTab  extends Component {
+class ResultTab  extends Component {
   //----------------------------------------------------------------------------
   constructor(props) {
     super(props);
@@ -84,13 +84,13 @@ export class ResultTab  extends Component {
   //----------------------------------------------------------------------------
   render() {
     return (
-      <ResultLoggerView className="logger results" entries={this.props.results} />
+      <ResultLoggerView className="logger results" browser={this.props.browser} entries={this.props.results} />
     );
   }
 }
 
 //==============================================================================
-export class ConsoleTab  extends Component {
+class ConsoleTab  extends Component {
   //----------------------------------------------------------------------------
   constructor(props) {
     super(props);
@@ -105,7 +105,7 @@ export class ConsoleTab  extends Component {
 }
 
 //==============================================================================
-export class ErrorsTab  extends Component {
+class ErrorsTab  extends Component {
   //----------------------------------------------------------------------------
   constructor(props) {
     super(props);
@@ -119,3 +119,23 @@ export class ErrorsTab  extends Component {
   }
 }
 
+const TABS = [
+  {
+    title: 'Result',
+    component: ResultTab
+  },
+  {
+    title: 'Summary',
+    component: SummaryTab
+  },
+  {
+    title: 'Console',
+    component: ConsoleTab
+  },
+  {
+    title: 'Errors',
+    component: ErrorsTab
+  }
+];
+
+export default TABS;

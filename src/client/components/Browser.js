@@ -10,29 +10,8 @@ import {
   SPEC_COMPLETED
 } from 'app-constants';
 
-import {
-  SummaryTab, ResultTab, ConsoleTab, ErrorsTab
-} from 'components/BrowserTabs';
+import TABS from 'components/BrowserTabs';
 
-
-const TABS = [
-  {
-    title: 'Summary',
-    component: SummaryTab
-  },
-  {
-    title: 'Result',
-    component: ResultTab
-  },
-  {
-    title: 'Console',
-    component: ConsoleTab
-  },
-  {
-    title: 'Errors',
-    component: ErrorsTab
-  }
-];
 
 //==============================================================================
 export default class Browser extends Component {
