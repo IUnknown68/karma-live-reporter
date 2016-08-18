@@ -1,9 +1,9 @@
 //==============================================================================
 import React, { Component } from 'react';
 
-import LoggerView from 'components/LoggerView';
 import ResultLoggerView from 'components/ResultLoggerView';
-import { LogEntry, ErrorEntry } from 'components/LoggerEntries';
+import ConsoleLoggerView from 'components/ConsoleLoggerView';
+import ErrorLoggerView from 'components/ErrorLoggerView';
 
 import {
   READY, EXECUTING,
@@ -84,7 +84,7 @@ class ResultTab  extends Component {
   //----------------------------------------------------------------------------
   render() {
     return (
-      <ResultLoggerView className="logger results" browser={this.props.browser} entries={this.props.results} />
+      <ResultLoggerView browser={this.props.browser} entries={this.props.results} />
     );
   }
 }
@@ -99,7 +99,7 @@ class ConsoleTab  extends Component {
   //----------------------------------------------------------------------------
   render() {
     return (
-      <LoggerView className="logger console" entryComponent={LogEntry} entries={this.props.log} />
+      <ConsoleLoggerView browser={this.props.browser} entries={this.props.log} />
     );
   }
 }
@@ -114,7 +114,7 @@ class ErrorsTab  extends Component {
   //----------------------------------------------------------------------------
   render() {
     return (
-      <LoggerView className="logger errors" entryComponent={ErrorEntry} entries={this.props.errors} />
+      <ErrorLoggerView browser={this.props.browser} entries={this.props.errors} />
     );
   }
 }

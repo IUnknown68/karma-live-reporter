@@ -1,19 +1,19 @@
 //==============================================================================
 import React, { Component } from 'react';
 import attachListener from 'attachListener';
-import { SPEC_COMPLETED, BROWSER_START } from 'app-constants';
+import { BROWSER_LOG, BROWSER_START } from 'app-constants';
 
 //==============================================================================
-export default class ResultLoggerView extends Component {
+export default class ConsoleLoggerView extends Component {
   static listener = {
     [BROWSER_START]: function(browser) {
       if (browser.id === this.props.browser.id) {
         this.clear();
       }
     },
-    [SPEC_COMPLETED]: function(browser, result) {
+    [BROWSER_LOG]: function(browser, log, type) {
       if (browser.id === this.props.browser.id) {
-        this.appendLog(result, true);
+        this.appendLog({log, type}, true);
       }
     }
   };
@@ -70,7 +70,11 @@ export default class ResultLoggerView extends Component {
 
   //----------------------------------------------------------------------------
   renderAllEntries() {
-    this.currentSuite = [];
+    let node = this.refs.root;
+    while (node.firstChild) {
+      node.removeChild(node.firstChild);
+    }
+
     this.props.entries.forEach(entry => {
       this.appendLog(entry, false);
     });
@@ -80,22 +84,9 @@ export default class ResultLoggerView extends Component {
   //----------------------------------------------------------------------------
   appendLog(entry, update = false) {
     const entryNode = document.createElement('div');
-
-    const suite = entry.suite;
-
-    let suiteChanged = false;
-    for (let n = 0; n < suite.length; n++) {
-      suiteChanged |= (this.currentSuite[n] !== suite[n]);
-      if (suiteChanged) {
-        const node = document.createElement('div');
-        node.style.marginLeft = `${n}em`;
-        entryNode.appendChild(node)
-          .appendChild(document.createTextNode(suite[n]));
-      }
-    }
-    this.currentSuite = suite;
-
-    this.appendLogEntry(entry, entryNode);
+    entryNode.className = entry.type;
+    this.appendLogEntryIcon(entry, entryNode);
+    entryNode.appendChild(document.createTextNode(entry.log));
     this.refs.root.appendChild(entryNode);
     if (update) {
       this.updateScroll();
@@ -103,59 +94,32 @@ export default class ResultLoggerView extends Component {
   }
 
   //----------------------------------------------------------------------------
-  appendLogEntry(entry, entryNode) {
-    const node = document.createElement('div');
-    const className = (entry.skipped)
-      ? 'skipped'
-      : (entry.success)
-        ? 'succeeded'
-        : 'failed';
-    node.className = `description ${className}`;
-
-    const indent = entry.suite.length;
-    node.style.marginLeft = `${indent}em`;
-
-    this.appendLogEntryIcon(className, node);
-    node.appendChild(document.createTextNode(entry.description));
-    this.appendLogEntryLog(entry, node);
-    entryNode.appendChild(node);
-  }
-
-  //----------------------------------------------------------------------------
-  appendLogEntryIcon(className, parentNode) {
-    let iconClassName = 'glyphicon glyphicon-';
-    switch(className) {
-      case 'skipped':
-        iconClassName += 'minus';
+  appendLogEntryIcon(entry, parentNode) {
+    let className = 'glyphicon glyphicon-';
+    switch(this.props.type) {
+      case 'info':
+        className += 'info-sign';
         break;
-      case 'succeeded':
-        iconClassName += 'ok';
+      case 'warn':
+        className += 'warning-sign';
         break;
-      case 'failed':
-        iconClassName += 'remove';
+      case 'error':
+        className += 'remove-sign';
+        break;
+      default:
+        className = null;
         break;
     }
-    if (iconClassName) {
+    if (className) {
       parentNode.appendChild(document.createElement('span'))
-        .className = iconClassName;
+        .className = className;
     }
-  }
-
-  //----------------------------------------------------------------------------
-  appendLogEntryLog(entry, parentNode) {
-    if (!entry.log) {
-      return;
-    }
-    entry.log.forEach(logEntry => {
-      parentNode.appendChild(document.createElement('div'))
-        .className = 'indent';
-    });
   }
 
   //----------------------------------------------------------------------------
   render() {
     return (
-      <div ref="root" className="logger results" />
+      <div ref="root" className="logger console" />
     );
   }
 
