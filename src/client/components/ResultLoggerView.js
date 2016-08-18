@@ -1,6 +1,7 @@
 //==============================================================================
 import React, { Component } from 'react';
 import attachListener from 'attachListener';
+import autoScroll from 'autoScroll';
 import { SPEC_COMPLETED, BROWSER_START } from 'app-constants';
 
 //==============================================================================
@@ -21,37 +22,12 @@ export default class ResultLoggerView extends Component {
   //----------------------------------------------------------------------------
   constructor(props) {
     super(props);
-    this.updateScroll = ::this.updateScroll;
-    this.scrollEnabled = true;
+    autoScroll(this);
     attachListener(this);
   }
 
   //----------------------------------------------------------------------------
-  isAtEnd() {
-    const e = this.refs.root;
-    return e.scrollHeight - e.scrollTop === e.clientHeight;
-  }
-
-  //----------------------------------------------------------------------------
-  _wantScroll() {
-    return this.scrollEnabled;
-  }
-
-  //----------------------------------------------------------------------------
-  updateScroll() {
-    if (!this.refs.root) {
-      return;
-    }
-    if (this._wantScroll()) {
-      this.refs.root.scrollTop = this.refs.root.scrollHeight;
-    }
-  }
-
-  //----------------------------------------------------------------------------
   componentDidMount() {
-    this.refs.root.addEventListener('scroll', () => {
-      this.scrollEnabled = this.isAtEnd();
-    });
     this.renderAllEntries();
   }
 
