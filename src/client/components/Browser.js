@@ -3,36 +3,10 @@ import React, { Component } from 'react';
 import dispatcher from 'Dispatcher';
 import attachListener from 'attachListener';
 import {
-  CONNECT, DISCONNECT,
-  RUN_START, RUN_COMPLETE,
-  BROWSER_START, BROWSER_COMPLETE,
-  BROWSER_LOG, BROWSER_ERROR,
-  SPEC_COMPLETED
+  BROWSER_START, BROWSER_COMPLETE
 } from 'app-constants';
 
-import {
-  SummaryTab, ResultTab, ConsoleTab, ErrorsTab
-} from 'components/BrowserTabs';
-
-
-const TABS = [
-  {
-    title: 'Summary',
-    component: SummaryTab
-  },
-  {
-    title: 'Result',
-    component: ResultTab
-  },
-  {
-    title: 'Console',
-    component: ConsoleTab
-  },
-  {
-    title: 'Errors',
-    component: ErrorsTab
-  }
-];
+import TABS from 'components/BrowserTabs';
 
 //==============================================================================
 export default class Browser extends Component {
@@ -57,27 +31,6 @@ export default class Browser extends Component {
         state: browser.state,
         lastResult: browser.lastResult
       });
-    },
-    [SPEC_COMPLETED]: function(browser, result) {
-      if (browser.id !== this.props.browser.id) {
-        return;
-      }
-      this.state.results.push(result);
-      this.forceUpdate();
-    },
-    [BROWSER_LOG]: function(browser, log, type) {
-      if (browser.id !== this.props.browser.id) {
-        return;
-      }
-      this.state.log.push({log, type});
-      this.forceUpdate();
-    },
-    [BROWSER_ERROR]: function(browser, error) {
-      if (browser.id !== this.props.browser.id) {
-        return;
-      }
-      this.state.errors.push({error});
-      this.forceUpdate();
     }
   };
 

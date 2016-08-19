@@ -1,9 +1,9 @@
 //==============================================================================
 import React, { Component } from 'react';
 
-import LoggerView from 'components/LoggerView';
 import ResultLoggerView from 'components/ResultLoggerView';
-import { LogEntry, ErrorEntry } from 'components/LoggerEntries';
+import ConsoleLoggerView from 'components/ConsoleLoggerView';
+import ErrorLoggerView from 'components/ErrorLoggerView';
 
 import {
   READY, EXECUTING,
@@ -12,7 +12,7 @@ import {
 } from 'karma-browser-constants';
 
 //==============================================================================
-export class SummaryTab  extends Component {
+class SummaryTab  extends Component {
   //----------------------------------------------------------------------------
   constructor(props) {
     super(props);
@@ -75,7 +75,7 @@ export class SummaryTab  extends Component {
 }
 
 //==============================================================================
-export class ResultTab  extends Component {
+class ResultTab  extends Component {
   //----------------------------------------------------------------------------
   constructor(props) {
     super(props);
@@ -84,13 +84,13 @@ export class ResultTab  extends Component {
   //----------------------------------------------------------------------------
   render() {
     return (
-      <ResultLoggerView className="logger results" entries={this.props.results} />
+      <ResultLoggerView browser={this.props.browser} entries={this.props.results} />
     );
   }
 }
 
 //==============================================================================
-export class ConsoleTab  extends Component {
+class ConsoleTab  extends Component {
   //----------------------------------------------------------------------------
   constructor(props) {
     super(props);
@@ -99,13 +99,13 @@ export class ConsoleTab  extends Component {
   //----------------------------------------------------------------------------
   render() {
     return (
-      <LoggerView className="logger console" entryComponent={LogEntry} entries={this.props.log} />
+      <ConsoleLoggerView browser={this.props.browser} entries={this.props.log} />
     );
   }
 }
 
 //==============================================================================
-export class ErrorsTab  extends Component {
+class ErrorsTab  extends Component {
   //----------------------------------------------------------------------------
   constructor(props) {
     super(props);
@@ -114,8 +114,28 @@ export class ErrorsTab  extends Component {
   //----------------------------------------------------------------------------
   render() {
     return (
-      <LoggerView className="logger errors" entryComponent={ErrorEntry} entries={this.props.errors} />
+      <ErrorLoggerView browser={this.props.browser} entries={this.props.errors} />
     );
   }
 }
 
+const TABS = [
+  {
+    title: 'Result',
+    component: ResultTab
+  },
+  {
+    title: 'Summary',
+    component: SummaryTab
+  },
+  {
+    title: 'Console',
+    component: ConsoleTab
+  },
+  {
+    title: 'Errors',
+    component: ErrorsTab
+  }
+];
+
+export default TABS;

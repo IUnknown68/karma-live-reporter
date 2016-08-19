@@ -1,103 +1,137 @@
 //==============================================================================
 import React, { Component } from 'react';
-import { ResultEntry } from 'components/LoggerEntries';
-import { isEqual } from 'lodash';
+import attachListener from 'attachListener';
+import autoScroll from 'autoScroll';
+import { SPEC_COMPLETED, BROWSER_START } from 'app-constants';
 
 //==============================================================================
 export default class ResultLoggerView extends Component {
+  static listener = {
+    [BROWSER_START]: function(browser) {
+      if (browser.id === this.props.browser.id) {
+        this.clear();
+      }
+    },
+    [SPEC_COMPLETED]: function(browser, result) {
+      if (browser.id === this.props.browser.id) {
+        this.appendLog(result, true);
+      }
+    }
+  };
+
   //----------------------------------------------------------------------------
   constructor(props) {
     super(props);
-    this._update = ::this._update;
-    this.scrollEnabled = true;
-  }
-
-  //----------------------------------------------------------------------------
-  isAtEnd() {
-    const e = this.refs.root;
-    return e.scrollHeight - e.scrollTop === e.clientHeight;
-  }
-
-  //----------------------------------------------------------------------------
-  _wantScroll() {
-    return this.scrollEnabled;
-  }
-
-  //----------------------------------------------------------------------------
-  _update() {
-    if (!this.refs.root) {
-      return;
-    }
-    if (this._wantScroll()) {
-      this.refs.root.scrollTop = this.refs.root.scrollHeight;
-    }
+    autoScroll(this);
+    attachListener(this);
   }
 
   //----------------------------------------------------------------------------
   componentDidMount() {
-    this.refs.root.addEventListener('scroll', () => {
-      this.scrollEnabled = this.isAtEnd();
-    });
-    this._update();
-    //setTimeout(this._update, 10);
+    this.renderAllEntries();
   }
 
   //----------------------------------------------------------------------------
-  componentDidUpdate() {
-    this._update();
-//    setTimeout(this._update, 10);
+  shouldComponentUpdate(nextProps, nextState) {
+    return false;
   }
 
   //----------------------------------------------------------------------------
-  renderEntries() {
-    if (!this.props.entries) {
-      return false;
+  clear() {
+    let node = this.refs.root;
+    while (node.firstChild) {
+      node.removeChild(node.firstChild);
     }
-    let currentSuite = [];
+  }
 
-    return this.props.entries.map((entry, index) => {
-      const suite = entry.suite;
-      const arDiff = [];
-      const items = [];
+  //----------------------------------------------------------------------------
+  renderAllEntries() {
+    this.currentSuite = [];
+    this.props.entries.forEach(entry => {
+      this.appendLog(entry, false);
+    });
+    setTimeout(this.updateScroll, 10);
+  }
 
-      const len = Math.max(currentSuite.length, suite.length);
-      for (let n = 0; n < len; n++) {
-        if (currentSuite[n] !== suite[n]) {
-          arDiff.push(suite[n]);
-        }
+  //----------------------------------------------------------------------------
+  appendLog(entry, update = false) {
+    const entryNode = document.createElement('div');
+
+    const suite = entry.suite;
+
+    let suiteChanged = false;
+    for (let n = 0; n < suite.length; n++) {
+      suiteChanged |= (this.currentSuite[n] !== suite[n]);
+      if (suiteChanged) {
+        const node = document.createElement('div');
+        node.style.marginLeft = `${n}em`;
+        entryNode.appendChild(node)
+          .appendChild(document.createTextNode(suite[n]));
       }
+    }
+    this.currentSuite = suite;
 
-      let refreshTo = suite.length;
-      let refreshFrom = refreshTo - arDiff.length;
+    this.appendLogEntry(entry, entryNode);
+    this.refs.root.appendChild(entryNode);
+    if (update) {
+      this.updateScroll();
+    }
+  }
 
-      for (let n = refreshFrom; n < refreshTo; n++) {
-        const style = {
-          marginLeft: `${n}em`
-        };
-        items.push(
-          <div key={items.length} style={style}>
-            {suite[n]}
-          </div>
-        );
-      }
-      items.push(<ResultEntry key={items.length} {...entry} />);
+  //----------------------------------------------------------------------------
+  appendLogEntry(entry, entryNode) {
+    const node = document.createElement('div');
+    const className = (entry.skipped)
+      ? 'skipped'
+      : (entry.success)
+        ? 'succeeded'
+        : 'failed';
+    node.className = `description ${className}`;
 
-      currentSuite = suite;
+    const indent = entry.suite.length;
+    node.style.marginLeft = `${indent}em`;
 
-      return (
-        <div key={index} >
-          {items}
-        </div>
-      );
+    this.appendLogEntryIcon(className, node);
+    node.appendChild(document.createTextNode(entry.description));
+    this.appendLogEntryLog(entry, node);
+    entryNode.appendChild(node);
+  }
+
+  //----------------------------------------------------------------------------
+  appendLogEntryIcon(className, parentNode) {
+    let iconClassName = 'glyphicon glyphicon-';
+    switch(className) {
+      case 'skipped':
+        iconClassName += 'minus';
+        break;
+      case 'succeeded':
+        iconClassName += 'ok';
+        break;
+      case 'failed':
+        iconClassName += 'remove';
+        break;
+    }
+    if (iconClassName) {
+      parentNode.appendChild(document.createElement('span'))
+        .className = iconClassName;
+    }
+  }
+
+  //----------------------------------------------------------------------------
+  appendLogEntryLog(entry, parentNode) {
+    if (!entry.log) {
+      return;
+    }
+    entry.log.forEach(logEntry => {
+      parentNode.appendChild(document.createElement('div'))
+        .className = 'indent';
     });
   }
 
   //----------------------------------------------------------------------------
   render() {
     return (
-      <div ref="root" className={this.props.className || ''}>
-        {this.renderEntries()}
-      </div>
+      <div ref="root" className="logger results" />
     );
   }
 
