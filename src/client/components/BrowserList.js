@@ -4,6 +4,7 @@ import dispatcher from 'Dispatcher';
 import attachListener from 'attachListener';
 import {map} from 'lodash';
 import classNames from 'classnames';
+import favIcon from 'favicon';
 import {
   RUN_START, BROWSERS_CHANGE
 } from 'app-constants';
@@ -24,6 +25,7 @@ export default class BrowserList extends Component {
     [BROWSERS_CHANGE]: function(browsers) {
       const selected = Math.max(Math.min(this.state.selected, browsers.length - 1), 0);
       this.setState({browsers, selected});
+      favIcon.updateList(browsers);
     }
   };
 

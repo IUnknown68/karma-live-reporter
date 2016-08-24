@@ -2,6 +2,7 @@
 import React, { Component } from 'react';
 import dispatcher from 'Dispatcher';
 import attachListener from 'attachListener';
+import favIcon from 'favicon';
 import {
   BROWSER_START, BROWSER_COMPLETE
 } from 'app-constants';
@@ -47,6 +48,11 @@ export default class Browser extends Component {
     };
     this._logIndex = 0;
     attachListener(this);
+  }
+
+  //----------------------------------------------------------------------------
+  componentDidUpdate() {
+    //favIcon.updateSingle(this.props.browser);
   }
 
   //----------------------------------------------------------------------------
