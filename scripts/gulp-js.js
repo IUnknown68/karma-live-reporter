@@ -12,9 +12,9 @@ const extensions = ['.js', '.jsx'];
 const targets = [
   {
     name: 'client-js',
-    src: config.SRC_CLIENT_APP + '.js',
+    src: config.SRC_APP + '.js',
     dst: config.BUILD_WWW_JS_APP + '.js',
-    paths: [config.SRC_CLIENT, config.SRC_COMMON],
+    paths: [config.SRC],
   }
 //  {
 //    name: 'server-js',

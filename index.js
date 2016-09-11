@@ -3,7 +3,7 @@ const express = require('express');
 const createServer = require('http').createServer;
 const listen = require('socket.io').listen;
 
-const consts = require('./src/common/app-constants');
+const consts = require('./src/app-constants');
 
 const WWW_ROOT = path.join(__dirname, 'build', 'www');
 const INDEX_HTML = path.join(WWW_ROOT, 'index.html');
