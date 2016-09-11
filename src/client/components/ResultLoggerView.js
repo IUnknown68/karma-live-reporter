@@ -123,7 +123,9 @@ export default class ResultLoggerView extends Component {
       return;
     }
     entry.log.forEach(logEntry => {
-      parentNode.appendChild(document.createElement('div'))
+      const el = document.createElement('div');
+      el.appendChild(document.createTextNode(logEntry));
+      parentNode.appendChild(el)
         .className = 'indent';
     });
   }
