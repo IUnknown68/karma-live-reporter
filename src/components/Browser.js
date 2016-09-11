@@ -2,9 +2,11 @@
 import React, { Component } from 'react';
 import dispatcher from 'Dispatcher';
 import attachListener from 'attachListener';
+import favIcon from 'favicon';
 import {
   BROWSER_START, BROWSER_COMPLETE
-} from 'app-constants';
+} from 'messages';
+import { TAB_CHANGED } from 'ui-messages';
 
 import TABS from 'components/BrowserTabs';
 
@@ -31,6 +33,9 @@ export default class Browser extends Component {
         state: browser.state,
         lastResult: browser.lastResult
       });
+    },
+    [TAB_CHANGED]: function(activeTab) {
+      this.setState({activeTab});
     }
   };
 
@@ -50,8 +55,13 @@ export default class Browser extends Component {
   }
 
   //----------------------------------------------------------------------------
+  componentDidUpdate() {
+    //favIcon.updateSingle(this.props.browser);
+  }
+
+  //----------------------------------------------------------------------------
   selectTab(tabIndex) {
-    this.setState({activeTab: tabIndex});
+    dispatcher.send(TAB_CHANGED, tabIndex, this.state.activeTab);
   }
 
   //----------------------------------------------------------------------------

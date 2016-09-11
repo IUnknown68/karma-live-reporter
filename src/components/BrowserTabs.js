@@ -119,10 +119,25 @@ class ErrorsTab  extends Component {
   }
 }
 
+//==============================================================================
+class ResultNavBar extends Component {
+  //----------------------------------------------------------------------------
+  render() {
+    return (
+      <div className="btn-group navbar-btn">
+        <button type="button" className="btn btn-default">Left</button>
+        <button type="button" className="btn btn-default">Middle</button>
+        <button type="button" className="btn btn-default">Right</button>
+      </div>
+    );
+  }
+}
+
 const TABS = [
   {
     title: 'Result',
-    component: ResultTab
+    component: ResultTab/*,
+    contextMenu: ResultNavBar*/
   },
   {
     title: 'Summary',

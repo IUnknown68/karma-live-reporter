@@ -17,28 +17,27 @@ function mkPath() {
 
 // src
 mkPath('SRC');
-// src/client
-mkPath('SRC', 'CLIENT');
-// src/server
-mkPath('SRC', 'SERVER');
-// src/server/app.js
-mkPath('SRC', 'SERVER', 'APP');
-// src/common
-mkPath('SRC', 'COMMON');
-// src/client/app.js/.less
-mkPath('SRC', 'CLIENT', 'APP');
+
+// src/app.js/.less
+mkPath('SRC', 'APP');
 
 // build
 mkPath('BUILD');
+
 // build/www
 mkPath('BUILD', 'WWW');
-// build/www/js/app.js
-mkPath('BUILD', 'WWW', 'JS', 'APP');
+
+// build/www/js
+mkPath('BUILD', 'WWW', 'JS');
+
 // build/www/css
 mkPath('BUILD', 'WWW', 'CSS');
+
+// build/www/js/klr.js
+mkPath('BUILD', 'WWW', 'JS', 'KLR');
+
+// build/www/js/app.js
+mkPath('BUILD', 'WWW', 'JS', 'APP');
+
 // build/www/css/app.css
 mkPath('BUILD', 'WWW', 'CSS', 'APP');
-// build/app.js
-mkPath('BUILD', 'APP');
-
-config.PORT = '8111';

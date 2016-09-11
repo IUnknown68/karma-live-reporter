@@ -2,7 +2,7 @@
 import React, { Component } from 'react';
 import attachListener from 'attachListener';
 import autoScroll from 'autoScroll';
-import { SPEC_COMPLETED, BROWSER_START } from 'app-constants';
+import { SPEC_COMPLETED, BROWSER_START } from 'messages';
 
 //==============================================================================
 export default class ResultLoggerView extends Component {
@@ -123,7 +123,9 @@ export default class ResultLoggerView extends Component {
       return;
     }
     entry.log.forEach(logEntry => {
-      parentNode.appendChild(document.createElement('div'))
+      const el = document.createElement('div');
+      el.appendChild(document.createTextNode(logEntry));
+      parentNode.appendChild(el)
         .className = 'indent';
     });
   }

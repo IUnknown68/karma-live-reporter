@@ -10,13 +10,13 @@ const DEBUG = ('development' === process.env.NODE_ENV);
 
 //------------------------------------------------------------------------------
 function compileLess(cb) {
-  var srcFile = config.SRC_CLIENT_APP + '.less';
+  var srcFile = config.SRC_APP + '.less';
   if (!srcFile) {
     cb();
     return;
   }
 
-  var paths = [config.SRC_CLIENT];
+  var paths = [config.SRC];
 
   // bootstrap
   paths.push(path.join(process.cwd(), 'node_modules', 'bootstrap', 'less'));
@@ -62,7 +62,7 @@ Gulp.task('compile:less', compileLess);
 //------------------------------------------------------------------------------
 // watch-less: watch less files
 Gulp.task('watch:less', ['compile:less'], function() {
-  Gulp.watch(config.SRC_CLIENT + '/**/*.less', ['compile:less']);
+  Gulp.watch(config.SRC + '/**/*.less', ['compile:less']);
 });
 
 
