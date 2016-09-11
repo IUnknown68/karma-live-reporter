@@ -3,12 +3,39 @@
 @appPadding: 1em;
 @leftbarWidth: 15em;
 
+.glyphicon-empty:before {
+  content: "\2122";
+  color: transparent !important;
+}
+
 #appcontainer {
   position: fixed;
   left: @appPadding;
   right: @appPadding;
   top: @appPadding;
   bottom: @appPadding;
+
+  nav {
+    &>div {
+      margin-right: 0.5em;
+    }
+    .alert {
+      margin: 0;
+      border: 0 none;
+      min-width: 9em;
+      text-align: center;
+      border-top-left-radius: 0;
+      border-bottom-left-radius: 0;
+    }
+  }
+
+  iframe.run-here {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    left: -10000px;
+    border: 0 none;
+  }
 
   #browserlist {
     position: absolute;
@@ -28,23 +55,12 @@
       .tabcontrol {
         position: absolute;
         left: 0;
-        top: 1em;
+        margin: 1em 0;
         width: @leftbarWidth;
         overflow: hidden;
         z-index: 1;
         pointer-events: none;
-
-        &.tab-1 {
-          margin-top: 0;
-        }
-
-        &.tab-2 {
-          margin-top: 3em;
-        }
-
-        &.tab-3 {
-          margin-top: 6em;
-        }
+        transition: top 0.3s;
 
         h4 {
           pointer-events: all;

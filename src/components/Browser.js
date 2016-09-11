@@ -6,6 +6,7 @@ import favIcon from 'favicon';
 import {
   BROWSER_START, BROWSER_COMPLETE
 } from 'messages';
+import { TAB_CHANGED } from 'ui-messages';
 
 import TABS from 'components/BrowserTabs';
 
@@ -32,6 +33,9 @@ export default class Browser extends Component {
         state: browser.state,
         lastResult: browser.lastResult
       });
+    },
+    [TAB_CHANGED]: function(activeTab) {
+      this.setState({activeTab});
     }
   };
 
@@ -57,7 +61,7 @@ export default class Browser extends Component {
 
   //----------------------------------------------------------------------------
   selectTab(tabIndex) {
-    this.setState({activeTab: tabIndex});
+    dispatcher.send(TAB_CHANGED, tabIndex, this.state.activeTab);
   }
 
   //----------------------------------------------------------------------------

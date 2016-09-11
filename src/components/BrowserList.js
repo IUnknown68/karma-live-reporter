@@ -5,9 +5,7 @@ import attachListener from 'attachListener';
 import {map} from 'lodash';
 import classNames from 'classnames';
 import favIcon from 'favicon';
-import {
-  RUN_START, BROWSERS_CHANGE
-} from 'messages';
+import { BROWSERLIST_CHANGED } from 'ui-messages';
 
 import {
   READY, EXECUTING,
@@ -22,7 +20,7 @@ const ITEM_SPACING_EM = 2.5;
 //==============================================================================
 export default class BrowserList extends Component {
   static listener = {
-    [BROWSERS_CHANGE]: function(browsers) {
+    [BROWSERLIST_CHANGED]: function(browsers) {
       const selected = Math.max(Math.min(this.state.selected, browsers.length - 1), 0);
       this.setState({browsers, selected});
       favIcon.updateList(browsers);
@@ -57,7 +55,7 @@ export default class BrowserList extends Component {
   //----------------------------------------------------------------------------
   renderBrowser(browser, index) {
     const tabControlStyles = {
-      marginTop: `${index * ITEM_SPACING_EM}em`
+      top: `${index * ITEM_SPACING_EM}em`
     };
 
     let className = '';
@@ -83,7 +81,7 @@ export default class BrowserList extends Component {
     }, className);
 
     return (
-      <div key={index} className={classNameBrowser}>
+      <div key={browser.id} className={classNameBrowser}>
         <div className="tabbody">
           <Browser browser={browser} />
         </div>

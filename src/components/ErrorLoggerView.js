@@ -14,7 +14,7 @@ export default class ErrorLoggerView extends Component {
     },
     [BROWSER_ERROR]: function(browser, error) {
       if (browser.id === this.props.browser.id) {
-        this.appendLog(result, true);
+        this.appendLog(error, true);
       }
     }
   };

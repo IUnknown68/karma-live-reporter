@@ -155,7 +155,6 @@ const LiveReporter = function(baseReporterDecorator, config, emitter, logger, he
   });
 
   // config for client
-  console.log(config);
   const clientConfig = Object.assign({}, mapConfig(config));
 
   // static files
