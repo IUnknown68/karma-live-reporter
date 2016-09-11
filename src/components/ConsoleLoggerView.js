@@ -2,7 +2,7 @@
 import React, { Component } from 'react';
 import attachListener from 'attachListener';
 import autoScroll from 'autoScroll';
-import { BROWSER_LOG, BROWSER_START } from 'app-constants';
+import { BROWSER_LOG, BROWSER_START } from 'messages';
 
 //==============================================================================
 export default class ConsoleLoggerView extends Component {

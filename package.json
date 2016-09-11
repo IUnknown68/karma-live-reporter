@@ -44,6 +44,7 @@
     "WWW": "www",
     "JS": "js",
     "CSS": "css",
+    "KLR": "klr",
     "APP": "app"
   },
   "browserify-shim": {

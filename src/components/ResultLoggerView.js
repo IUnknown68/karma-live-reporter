@@ -2,7 +2,7 @@
 import React, { Component } from 'react';
 import attachListener from 'attachListener';
 import autoScroll from 'autoScroll';
-import { SPEC_COMPLETED, BROWSER_START } from 'app-constants';
+import { SPEC_COMPLETED, BROWSER_START } from 'messages';
 
 //==============================================================================
 export default class ResultLoggerView extends Component {

@@ -2,7 +2,7 @@
 import React, { Component } from 'react';
 import attachListener from 'attachListener';
 import autoScroll from 'autoScroll';
-import { BROWSER_ERROR, BROWSER_START } from 'app-constants';
+import { BROWSER_ERROR, BROWSER_START } from 'messages';
 
 //==============================================================================
 export default class ErrorLoggerView extends Component {

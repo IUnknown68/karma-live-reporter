@@ -5,7 +5,7 @@ import attachListener from 'attachListener';
 import favIcon from 'favicon';
 import {
   BROWSER_START, BROWSER_COMPLETE
-} from 'app-constants';
+} from 'messages';
 
 import TABS from 'components/BrowserTabs';
 

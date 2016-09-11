@@ -11,30 +11,26 @@ const extensions = ['.js', '.jsx'];
 //------------------------------------------------------------------------------
 const targets = [
   {
-    name: 'client-js',
+    name: 'js:klr',
+    src: config.SRC + '/klr.js',
+    dst: config.BUILD_WWW_JS_KLR + '.js',
+    paths: [config.SRC],
+  },
+  {
+    name: 'js:app',
     src: config.SRC_APP + '.js',
     dst: config.BUILD_WWW_JS_APP + '.js',
     paths: [config.SRC],
   }
-//  {
-//    name: 'server-js',
-//    browserify: false,
-//    src: config.SRC_SERVER_APP + '.js',
-//    dst: config.BUILD_APP + '.js',
-//    paths: [config.SRC_SERVER + '/**/*.js', config.SRC_COMMON + '/**/*.js'],
-//  }
 ];
 
 
 //------------------------------------------------------------------------------
+// Create compiler, one per target.
 const compilers = targets.map(function(target) {
-  const compileTask = `compile:${target.name}`;
-  const watchTask = `watch:${target.name}`;
-
-  //============ BROWSERIFY
   var boObject = null;
 
-  //--------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   function compileJs() {
     return boObject
       .bundle()
@@ -44,33 +40,41 @@ const compilers = targets.map(function(target) {
      .pipe(fs.createWriteStream(target.dst));
   }
 
-  //--------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
+  function watchJs() {
+    watchify(boObject);
+    return compileJs();
+  }
+
+  //----------------------------------------------------------------------------
+  function logMsg(msg) {
+    console.log(`${target.name}: ${msg}`);
+  }
+
+  //----------------------------------------------------------------------------
   var boObject = browserify({
     debug: DEBUG,
     paths: target.paths,
     extensions: extensions,
     transform: ['babelify', 'browserify-shim']
-  });
-  boObject = boObject.on('update', compileJs);
-  boObject = boObject.on('log',function(msg) {
-    console.log(`${target.name}: ${msg}`);
-  });
-  boObject = boObject.require(target.src, { entry: true });
+  })
+    .on('update', compileJs)
+    .on('log',logMsg)
+    .require(target.src, { entry: true });
 
-  //--------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   // compile task
-  Gulp.task(compileTask, compileJs);
+  const compileTaskname = `compile:${target.name}`;
+  Gulp.task(compileTaskname, compileJs);
 
-  //--------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   // watch task
-  Gulp.task(watchTask, function() {
-    watchify(boObject);
-    return compileJs();
-  });
+  const watchTaskname = `watch:${target.name}`;
+  Gulp.task(watchTaskname, watchJs);
 
   return {
-    compileTask: compileTask,
-    watchTask: watchTask
+    compileTask: compileTaskname,
+    watchTask: watchTaskname
   };
 });
 

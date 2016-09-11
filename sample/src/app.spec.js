@@ -1,11 +1,21 @@
-import { expect, default as chai } from 'chai';
-import sinon from 'sinon';
-import sinonChai from 'sinon-chai';
-chai.should();
-chai.use(sinonChai);
+describe('Server', function() {
+  describe('Foo', function() {
+    describe('Bar', function() {
+      it('is Bar', function() {});
+      it('is Bar ok', function() {});
+    });
 
-describe('Server', () => {
-  it('is ok', () => {
-    expect(true).to.be.true;
+    describe('Mobo', function() {
+      it('is Mobo', function() {});
+      it('is Mobo ok', function() {});
+    });
+
+    it('is Foo', function() {});
+  });
+
+  it('is Server', function() {});
+
+  describe('Bibi', function() {
+    it('is Bibi', function() {});
   });
 });

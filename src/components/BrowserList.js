@@ -7,7 +7,7 @@ import classNames from 'classnames';
 import favIcon from 'favicon';
 import {
   RUN_START, BROWSERS_CHANGE
-} from 'app-constants';
+} from 'messages';
 
 import {
   READY, EXECUTING,

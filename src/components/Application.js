@@ -6,7 +6,7 @@ import attachListener from 'attachListener';
 import {
   CONNECT, DISCONNECT,
   BROWSER_REGISTER, BROWSER_START, CURRENT_STATE
-} from 'app-constants';
+} from 'messages';
 
 import BrowserList from 'components/BrowserList';
 
